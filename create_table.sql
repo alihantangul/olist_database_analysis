@@ -1,113 +1,84 @@
+/* Run on an empty PostgreSQL database before import_data.sql. */
 
-
-/* Creating geolocation table */
-CREATE TABLE geo_location(
-    zipcode char(5),
-    latitude double precision,
-    longitude double precision,
-    city varchar(50),
-    geostate char(2) 
-    );
-    
-    
-/* Creating customers datatable */
-CREATE TABLE customers(
-    customer_id varchar(50),
-    customer_unique_id varchar(50),
-    customer_zipcode char(5),
-    customer_city varchar(50),
-    customer_state char(2),
-    CONSTRAINT customer_key PRIMARY KEY (customer_id)
+CREATE TABLE geo_location (
+    geo_id BIGSERIAL PRIMARY KEY,
+    zipcode INTEGER NOT NULL,
+    latitude NUMERIC,
+    longitude NUMERIC,
+    city VARCHAR(100),
+    geostate CHAR(2)
 );
 
-
-/* Creating sellers table */
-CREATE TABLE sellers(
-    seller_id varchar(50),
-    seller_zipcode char(5),
-    seller_city varchar(50),
-    seller_state varchar(5),
-    CONSTRAINT seller_key PRIMARY KEY (seller_id)
+CREATE TABLE customers (
+    customer_id VARCHAR(50) PRIMARY KEY,
+    customer_unique_id VARCHAR(50) NOT NULL,
+    customer_zipcode INTEGER,
+    customer_city VARCHAR(100),
+    customer_state CHAR(2)
 );
 
-
-/* Creating product table */
-CREATE TABLE products(
-    product_id varchar(50),
-    product_category varchar(50),
-    product_name_length smallint,
-    product_desc_length smallint,
-    product_photos_qty smallint,
-    product_weight_grams integer,
-    product_length_cm smallint,
-    product_height_cm smallint,
-    product_width_cm smallint,
-    CONSTRAINT product_key PRIMARY KEY (product_id)
+CREATE TABLE sellers (
+    seller_id VARCHAR(50) PRIMARY KEY,
+    seller_zipcode INTEGER,
+    seller_city VARCHAR(100),
+    seller_state CHAR(2)
 );
 
-/* Creating order datatable */
-CREATE TABLE orders(
-    order_id varchar(50),
-    customer_id varchar(50) REFERENCES customers (customer_id),
-    order_status varchar(50),
-    order_purchase timestamp,
-    order_approved timestamp,
-    order_delivered_carrier timestamp,
-    order_delivered_customer timestamp,
-    order_estimated_delivery timestamp,
-    CONSTRAINT order_key PRIMARY KEY (order_id)
+CREATE TABLE products (
+    product_id VARCHAR(50) PRIMARY KEY,
+    product_category VARCHAR(100),
+    product_name_length INTEGER,
+    product_desc_length INTEGER,
+    product_photos_qty INTEGER,
+    product_weight_grams INTEGER,
+    product_length_cm INTEGER,
+    product_height_cm INTEGER,
+    product_width_cm INTEGER
 );
 
-
-
-/* Creating order_payments datatable */
-CREATE TABLE order_payments(
-    order_id varchar(50) REFERENCES orders (order_id),
-    payment_sequential smallint,
-    payment_type varchar(20),
-    payment_installments smallint,
-    payment_value double precision
+CREATE TABLE orders (
+    order_id VARCHAR(50) PRIMARY KEY,
+    customer_id VARCHAR(50) NOT NULL REFERENCES customers(customer_id),
+    order_status VARCHAR(50),
+    order_purchase TIMESTAMP,
+    order_approved TIMESTAMP,
+    order_delivered_carrier TIMESTAMP,
+    order_delivered_customer TIMESTAMP,
+    order_estimated_delivery TIMESTAMP
 );
 
-/* Creating order_review datatable */
-CREATE TABLE order_reviews(
-    review_id varchar(50),
-    order_id varchar(50) REFERENCES orders (order_id), 
-    review_score smallint,
-    review_title text,
-    review_comment text,
-    review_create timestamp,
-    review_answer timestamp
+CREATE TABLE order_payments (
+    order_id VARCHAR(50) NOT NULL REFERENCES orders(order_id),
+    payment_sequential INTEGER NOT NULL,
+    payment_type VARCHAR(20),
+    payment_installments INTEGER,
+    payment_value NUMERIC(12, 2),
+    PRIMARY KEY (order_id, payment_sequential)
 );
 
-
-
-/* Creating order_item table */
-CREATE TABLE order_items(
-    order_id varchar(50) REFERENCES orders (order_id),
-    order_item_id smallint,
-    product_id varchar(50) REFERENCES products (product_id),
-    seller_id varchar(50) REFERENCES sellers (seller_id),
-    shipping_limit_date timestamp,
-    price real,
-    freight_value real
+CREATE TABLE order_reviews (
+    review_id VARCHAR(50) NOT NULL,
+    order_id VARCHAR(50) NOT NULL REFERENCES orders(order_id),
+    review_score INTEGER,
+    review_title TEXT,
+    review_comment TEXT,
+    review_create TIMESTAMP,
+    review_answer TIMESTAMP,
+    PRIMARY KEY (review_id, order_id)
 );
 
-
-/* Creating product_translation table */
-CREATE TABLE product_translation(
-    category varchar(50),
-    category_translation varchar(50)
+CREATE TABLE order_items (
+    order_id VARCHAR(50) NOT NULL REFERENCES orders(order_id),
+    order_item_id INTEGER NOT NULL,
+    product_id VARCHAR(50) REFERENCES products(product_id),
+    seller_id VARCHAR(50) REFERENCES sellers(seller_id),
+    shipping_limit_date TIMESTAMP,
+    price NUMERIC(12, 2),
+    freight_value NUMERIC(12, 2),
+    PRIMARY KEY (order_id, order_item_id)
 );
 
-
-
-
-
-
-
-
-
-
-
-
+CREATE TABLE product_translation (
+    category VARCHAR(100) PRIMARY KEY,
+    category_translation VARCHAR(100)
+);

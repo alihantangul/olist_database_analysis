@@ -1,40 +1,87 @@
-# **Olist Veritabanı Analizi**
+# Olist Veritabanı Analizi
 
-![entity_olist](olist_entity.svg)
+![Olist veri modeli](olist_entity.svg)
 
-### **Hakkında**
+Bu proje, Olist'in Ekim 2016-Ekim 2018 dönemindeki yaklaşık 100 bin e-ticaret siparişini PostgreSQL ve SQL-first notebook'larla inceler. Filtreleme, birleştirme, gruplama, korelasyon ve regresyon hesapları SQL'de yapılır; Python yalnızca sorgu sonuçlarını göstermek ve grafik üretmek için kullanılır.
 
-*`Olist` Brezilya'nın en büyük mağazası olup, Brezilya'nın her yerinden küçük işletmeleri birbirine bağlar.
-Veri, Ekim 2016 ile Ekim 2018 arasındaki dönemden 100K sipariş içerir. Veritabanı siparişler, müşteriler, 
-satıcılar, ödeme yöntemleri, ürünler ve konumlar hakkında bilgiler içerir.*
+## Proje Yapısı
 
-*Veri seti Kaggle'da bu [bağlantıda](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce?select=product_category_name_translation.csv) mevcuttur*
+| Analiz | Notebook |
+|---|---|
+| Sipariş sıklığı ve teslimat | [Frequency Analysis](Frequency_analysis_of_orders/Frequency_analysis_of_orders.ipynb) |
+| Müşteri analizi | [Customer Analysis](Customer_analysis/Customer_analysis.ipynb) |
+| Satıcı analizi | [Seller Analysis](Seller_analysis/Seller_analysis.ipynb) |
+| Ürün analizi | [Product Analysis](Product_analysis/Product_Analysis.ipynb) |
+| Tamamlayıcı analizler | [Miscellaneous](Miscellaneous/Miscellaneous.ipynb) |
+| Grafikler ve veri hikâyesi | [Visualizations](Visualizations/olist_visualizations.ipynb) |
 
-*Bu projede, önce veritabanını sıfırdan oluşturduk, ardından müşteri, satıcı ve siparişleri derinlemesine `analiz` ettik ve 
-sipariş hacmi, teslimat süresi, değerli müşteri pazarları, gelir açısından önemli satıcılar vb. hakkında önemli `içgörüler` 
-elde ettik ve `PostgreSQL` kullandık*
+## Kurulum
 
-*Olist tarafından sağlanan dört ana veri kategorisinde analiz gerçekleştirdik*
+1. Repoyu klonlayın ve klasöre geçin.
+2. Python bağımlılıklarını kurun:
 
-|   **Analiz**|   **Markdown**|   **Notebook**|
-|---|---|---|
-|   Siparişlerin Sıklığı| [md](Frequency_analysis_of_orders/)   | [notebook](Frequency_analysis_of_orders/Frequency_analysis_of_orders.ipynb)  |
-|   Müşteriler| [md](Customer_analysis)  | [notebook](Customer_analysis/Customer_analysis.ipynb)  |
-|   Satıcılar|[md](Seller_analysis/)   | [notebook](Seller_analysis/Seller_analysis.ipynb)  |
-|   Ürünler| [md](Product_analysis/)  |[notebook](Product_analysis/Product_Analysis.ipynb)|
-|   Çeşitli| [md](Miscellaneous/)  |[notebook](Miscellaneous/Miscellaneous.ipynb)   |
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### **Veritabanı Nasıl Kullanılır**
+3. Olist CSV dosyalarını `olist_data/` klasörüne indirin. CSV dosyaları boyut ve lisans nedeniyle Git'e eklenmez.
+4. PostgreSQL'de `olist` veritabanını oluşturun.
+5. Repo kökünde aşağıdaki komutları çalıştırın:
 
-1. PostgreSQL ve pgAdmin4'ü yükleyin
-2. Depoyu klonlayın
-3. CSV dosyalarını [buradan](curl -L "https://d32aokrjazspmn.cloudfront.net/materials/olist.zip") indirin ve `olist_data/` klasörü içine açın
-4. pgAdmin4'ü açın, Server > LOCAL öğesine gidin, sağ tıklayın ve CREATE'i seçin, veritabanı adını `olist` olarak girin
-5. Olist veritabanına tekrar gidin, sağ tıklayın ve Query Tool'u açın
-6. Klasör simgesine tıklayın, indirilen klasöre gidin ve `create_table.sql` dosyasını açın, tüm dosyayı seçin ve çalıştırın, bu gerekli tüm tabloları oluşturacaktır
-7. Tekrar klasöre gidin ve `import_data.sql` dosyasını açın, tüm yolları bilgisayarınızdaki indirilen yolla değiştirin
-8. Tüm kodu seçin ve çalıştırın, bu tüm verileri içe aktaracaktır
-9. Sorgularla oynayın veya kendi analizinizi yapın
+   ```bash
+   psql -U postgres -d olist -f create_table.sql
+   psql -U postgres -d olist -f import_data.sql
+   ```
 
-### **Analizler Nasıl Oluşturulur**
-Başlamak için `Frequency_analysis_of_orders.ipynb` dosyasına bakarak ilham alabilirsiniz!
+   `import_data.sql`, repo kökünden çalıştırıldığında `olist_data/` altındaki dosyaları bulur.
+
+6. Ortam dosyasını oluşturun:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+7. `.env` içindeki bağlantı bilgilerini kendi PostgreSQL kurulumunuza göre düzenleyin:
+
+   ```dotenv
+   OLIST_DB_HOST=localhost
+   OLIST_DB_NAME=olist
+   OLIST_DB_USER=postgres
+   OLIST_DB_PASSWORD=your_password
+   ```
+
+8. Jupyter'ı başlatın:
+
+   ```bash
+   jupyter notebook
+   ```
+
+Gerçek `.env` dosyası ve CSV dosyaları `.gitignore` ile Git dışında tutulur.
+
+## Şema Adlandırması
+
+Notebook'lar ve kurulum SQL'leri aynı kısa isimleri kullanır. Örnekler:
+
+| CSV başlığı | PostgreSQL kolonu |
+|---|---|
+| `product_category_name` | `product_category` |
+| `product_weight_g` | `product_weight_grams` |
+| `order_purchase_timestamp` | `order_purchase` |
+| `order_delivered_customer_date` | `order_delivered_customer` |
+| `review_comment_message` | `review_comment` |
+
+Mevcut Kaggle adlarıyla kurulmuş bir veritabanını bu şemaya geçirmek için `migrate_schema_to_repo_names.sql` kullanılabilir. Migration yalnızca tablo/kolon adlarını ve eksik anahtarları düzenler; analiz verisini silmez.
+
+## Öne Çıkan Bulgular
+
+- 99.441 siparişin 96.478'i teslim edilmiştir; teslim oranı `%97,02`'dir.
+- Teslim edilen siparişlerde en yüksek aylık hacim Kasım 2017'de 7.289 sipariş ve 1.153.528,05 ödeme değeriyle görülmüştür.
+- `health_beauty`, 9.465 ürün kalemi ve 1.233.131,72 ürün geliriyle en yüksek gelirli kategoridir.
+- Ortalama teslimat süresi SP eyaletinde 8,76 gün, RR eyaletinde 29,39 gündür. RR sonucu yalnızca 41 siparişe dayandığı için hacim farkı dikkate alınmalıdır.
+- Kredi kartı, 76.795 işlem ve 12.542.084,19 toplam ödeme değeriyle en yüksek hacimli ödeme yöntemidir.
+
+Bu bulgular betimleyicidir. Korelasyon ve regresyon sonuçları nedensellik kanıtı olarak yorumlanmamalıdır.
+
+## Veri Kaynağı
+
+Veri seti: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)

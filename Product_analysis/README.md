@@ -7,11 +7,14 @@ import os
 
 
 ```python
-host = "localhost"
-database = "olist"
-user = "postgres"
-password = "sql123"
-connection_string = f"postgresql://{user}:{password}@{host}/{database}"
+# Bağlantı bilgileri repo kökündeki .env dosyasından okunur.
+from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv(Path.cwd().parent / ".env")
+password = os.environ["OLIST_DB_PASSWORD"]
+connection_string = f"postgresql://postgres:{password}@localhost/olist"
 %sql $connection_string
 ```
 
@@ -428,7 +431,7 @@ ORDER BY name_length, desc_length;
 ```sql
 %%sql
 SELECT product_category,
-       (AVG(product_weight_grams)/1000)::real AS avg_weight,
+       (AVG(product_weight_gramsrams)/1000)::real AS avg_weight,
         AVG(product_length_cm)::real AS avg_length,
         AVG(product_height_cm)::real AS avg_height,
         AVG(product_width_cm)::real AS avg_width
@@ -1382,7 +1385,7 @@ FROM avg_box_volume
 %%sql
 WITH product_freight 
        AS(SELECT oi.freight_value,
-       pr.product_weight_grams,
+       pr.product_weight_gramsrams,
        pr.product_length_cm,
        pr.product_height_cm,
        pr.product_width_cm,
@@ -1394,7 +1397,7 @@ SELECT CORR(freight_value, product_length_cm)::real AS corr_length,
        CORR(freight_value, product_height_cm)::real AS corr_height,
        CORR(freight_value, product_width_cm)::real AS corr_width,
        CORR(freight_value, volume)::real AS corr_volume,
-       CORR(freight_value,product_weight_grams)::real AS corr_weight,
+       CORR(freight_value,product_weight_gramsrams)::real AS corr_weight,
        CORR(freight_value, price)::real AS corr_price
 FROM product_freight
 ```
@@ -1482,7 +1485,7 @@ LIMIT 10
 %%sql
 WITH price_freight AS (SELECT product_category, 
                        freight_value,
-                       (product_weight_grams/1000)::real AS weight
+                       (product_weight_gramsrams/1000)::real AS weight
                        FROM order_items
                        JOIN products using(product_id))
 SELECT regr_slope(freight_value,weight)::real AS slope,
